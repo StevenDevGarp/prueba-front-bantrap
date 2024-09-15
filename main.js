@@ -5,8 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const cajaChicaList = document.getElementById('cajaChicaList');
     const taxesList = document.getElementById('taxesList');
     const perfectNumbersList = document.getElementById('perfectNumbersList');
-    const generateReportButton = document.getElementById('generateReport');
-    const reportOutput = document.getElementById('reportOutput');
+
+    // Botones de generación de reportes
+    const generateCajaChicaReportButton = document.getElementById('generateCajaChicaReport');
+    const generateTaxesReportButton = document.getElementById('generateTaxesReport');
+    const generatePerfectNumbersReportButton = document.getElementById('generatePerfectNumbersReport');
 
     // Cargar las personas y facturas al cargar la página
     cargarPersonas();
@@ -29,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para cargar las facturas en el select
     function cargarFacturas() {
-        fetch('http://localhost:8080/facturas') // Ajusta la ruta del endpoint
+        fetch('http://localhost:8080/caja-chica/bills') // Ajusta la ruta del endpoint
             .then(response => response.json())
             .then(data => {
                 data.forEach(factura => {
@@ -102,22 +105,36 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // Generar reporte en formato TXT
-    generateReportButton.addEventListener('click', () => {
-        let reportContent = 'Registros de Caja Chica:\n';
-        reportContent += cajaChicaList.textContent + '\n\n';
-        reportContent += 'Registros de Impuestos:\n';
-        reportContent += taxesList.textContent + '\n\n';
-        reportContent += 'Registros de Números Perfectos:\n';
-        reportContent += perfectNumbersList.textContent;
-
-        const blob = new Blob([reportContent], { type: 'text/plain' });
+    // Función para generar y descargar reporte en TXT
+    function generarReporte(seccion, nombreArchivo) {
+        const blob = new Blob([seccion], { type: 'text/plain' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'reporte_caja_chica.txt';
+        a.download = nombreArchivo;
         a.click();
         window.URL.revokeObjectURL(url);
+    }
+
+    // Generar reporte de Caja Chica
+    generateCajaChicaReportButton.addEventListener('click', () => {
+        let reportContent = 'Registros de Caja Chica:\n';
+        reportContent += cajaChicaList.textContent;
+        generarReporte(reportContent, 'reporte_caja_chica.txt');
+    });
+
+    // Generar reporte de Impuestos
+    generateTaxesReportButton.addEventListener('click', () => {
+        let reportContent = 'Registros de Impuestos:\n';
+        reportContent += taxesList.textContent;
+        generarReporte(reportContent, 'reporte_impuestos.txt');
+    });
+
+    // Generar reporte de Números Perfectos
+    generatePerfectNumbersReportButton.addEventListener('click', () => {
+        let reportContent = 'Registros de Números Perfectos:\n';
+        reportContent += perfectNumbersList.textContent;
+        generarReporte(reportContent, 'reporte_numeros_perfectos.txt');
     });
 
     // Cargar los registros al iniciar
